@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "livuma": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://livuma.com/mcp"]
+    }
+  }
+}

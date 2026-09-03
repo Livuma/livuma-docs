@@ -1,0 +1,12 @@
+{
+  "name": "livuma",
+  "transport": "streamable-http",
+  "url": "https://livuma.com/mcp",
+  "auth": "none",
+  "tools": [
+    "search_listings",
+    "get_listing_details",
+    "search_knowledge",
+    "get_search_options"
+  ]
+}
