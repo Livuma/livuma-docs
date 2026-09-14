@@ -89,7 +89,7 @@ Use `GET /api/v1/bookings/{id}` for the money breakdown, payments and available 
 | Open-ended rentals | `pricing.estimatedRecurringPayment`, `pricing.recurringHostNetPayout`, `pricing.minimumStayMonths` (monthly rentals only — `null` for daily and yearly) |
 | Yearly rentals | `pricing.depositAmount`, `pricing.balanceDueAmount`, `pricing.balanceDueDate` |
 | Is the money yours yet | `payments[].status` plus `payments[].isReservationPrepayment` — see the callout below |
-| Your exposure | `guestCancellationTerms` — the guest's free-cancel deadline, minimum stay and notice period |
+| Your exposure | `guestCancellationTerms` — the guest's cancellation deadline, minimum stay and notice period; shared `platformFeeRate`, `refundPercentage`, `showNoticeTerms`, `blockedAfterFullPayment`, `showFullYearTerms`, `afterWindowDescriptionKey` and localized `refundDescription`, `afterWindowDescription`, `afterCheckInDescription`. Exact refunds come from the cancellation preview. |
 | What you can do now | `actions[]` |
 
 > **Decide on the whole term, not the first payment.** On a six-month tenancy `pricing.guestTotal` is only month one — `pricing.schedule[]` and the totals are the commitment you are accepting. For an *open-ended* rental the schedule is just the up-front minimum-stay deposit; `estimatedRecurringPayment` is what continues after it.
@@ -152,6 +152,9 @@ If a capture fails (an expired or withdrawn card hold), the booking stays `appro
 ## 7. Cancel an accepted booking
 
 - **GET** `/api/v1/bookings/{id}/cancellation-preview` — free, read-only — what cancelling would cost
+
+The preview includes `cancellationTerms` from the same policy used by the dialogs. Its `description` and `cancellationInfo.reason` use the shared summary; `cancellationInfo.reasonKey` identifies a localized policy reason when available.
+
 - **POST** `/api/v1/bookings/{id}/cancel` — `{ "reason": "..." }` — required
 
 **Cancel is not decline.** Decline ends a request, or an approved booking nobody has paid for, with no penalty. Cancel runs the cancellation policy: notice periods, guest refunds, your compensation. Always show the preview first:

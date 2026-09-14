@@ -130,7 +130,7 @@ All fields are optional in the JSON (updates change only what you send). “Requ
 | `shortTermPrice` | decimal | Nightly rate — required > 0 when short-term is enabled. |
 | `minimumStayDays` | int | Minimum nights (short-term). |
 | `nibNumber` | string ≤20 | **Short-term:** required, exactly 13 digits (separators allowed). |
-| `kbliCodes` | string ≤200 | **Short-term:** required, comma-separated. Accepted KBLI 2025 codes: `55203` Villa, `55201` Homestay, `55204` Hotel Apartment, `55106` Non-Star Hotel, `55202` Youth Hostel, `55300` Campground, `55209` Other Short-Term Accommodation (legacy KBLI 2020 equivalents such as `55193`/`55130` remain accepted while OSS records convert). Real-estate codes are rejected (`kbli_not_accepted`). |
+| `kbliCodes` | string ≤200 | **Short-term:** required, comma-separated. Accepted KBLI 2025 codes: `55203` Villa, `55201` Homestay, `55204` Hotel Apartment, `55106` Non-Star Hotel, `55202` Youth Hostel, `55300` Campground, `55209` Other Short-Term Accommodation, `55909` Other Accommodation (boarding house / kost, co-living) (legacy KBLI 2020 equivalents such as `55193`/`55130`/`55900` remain accepted while OSS records convert). Real-estate codes are rejected (`kbli_not_accepted`). |
 | `nkuNumber` | string ≤30 | **Short-term:** required — NKU (Nomor Kegiatan Usaha) from OSS, listed under your NIB. Part of the Ministry of Tourism's NIB + KBLI + NKU verification. |
 | `shortTermRentalComplianceConfirmed`, `shortTermRentalComplianceResponsibilityAcknowledged` | bool | **Short-term:** both must be `true`. |
 | `longTermMonthlyPrice`, `longTermYearlyPrice` | decimal | At least one > 0 when long-term is enabled. |
