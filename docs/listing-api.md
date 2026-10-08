@@ -100,7 +100,7 @@ The `201` response contains the listing `id`, its `publicId` and its public `url
 
 - **GET** `/api/v1/listings?page=1&pageSize=25` — your listings (summary shape)
 - **GET** `/api/v1/listings/{id}` — full detail incl. all images
-- **PUT** `/api/v1/listings/{id}` — update — send *only* the fields you change; omitted fields keep their values
+- **PUT** `/api/v1/listings/{id}` — update — send *only* the fields you change; omitted or `null` fields keep their values
 - **POST** `/api/v1/listings/{id}/status` — `{"status": "online" | "paused" | "removed"}`
 - **DELETE** `/api/v1/listings/{id}` — same as status `removed`
 
@@ -133,7 +133,7 @@ All fields are optional in the JSON (updates change only what you send). “Requ
 | `kbliCodes` | string ≤200 | **Short-term:** required, comma-separated. Accepted KBLI 2025 codes: `55203` Villa, `55201` Homestay, `55204` Hotel Apartment, `55106` Non-Star Hotel, `55202` Youth Hostel, `55300` Campground, `55209` Other Short-Term Accommodation, `55909` Other Accommodation (boarding house / kost, co-living) (legacy KBLI 2020 equivalents such as `55193`/`55130`/`55900` remain accepted while OSS records convert). Real-estate codes are rejected (`kbli_not_accepted`). |
 | `nkuNumber` | string ≤30 | **Short-term:** required — NKU (Nomor Kegiatan Usaha) from OSS, listed under your NIB. Part of the Ministry of Tourism's NIB + KBLI + NKU verification. |
 | `shortTermRentalComplianceConfirmed`, `shortTermRentalComplianceResponsibilityAcknowledged` | bool | **Short-term:** both must be `true`. |
-| `longTermMonthlyPrice`, `longTermYearlyPrice` | decimal | At least one > 0 when long-term is enabled. |
+| `longTermMonthlyPrice`, `longTermYearlyPrice` | decimal | At least one > 0 when long-term is enabled. `0` means the rate is not offered: to remove a monthly or yearly rate on update, send `0` (`null` leaves it unchanged). To stop offering nightly stays, set `isShortTermRental` to `false`. |
 | `residentialLeaseConfirmed` | bool | **Monthly rentals:** must be `true` — declares the property is let as a residential lease, not operated as tourist accommodation. Not needed for yearly-only listings. |
 | `minimumStayMonths` | int | Minimum months (long-term). |
 | `utilities` | decimal | Monthly utilities amount. |
