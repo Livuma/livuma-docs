@@ -96,6 +96,46 @@ The `201` response contains the listing `id`, its `publicId` and its public `url
 
 ---
 
+## Add a video tour (optional)
+
+Upload the video **file** itself — links (YouTube, Vimeo …) are not accepted. The file goes straight to our video provider over the resumable [tus](https://tus.io) protocol, so large files survive dropped connections.
+
+- 1 video per listing · up to 5 minutes · up to 4 GB · mp4 / mov / m4v / webm.
+- Guests get the best quality their screen and connection can play (up to Full HD).
+- Shown on the listing page below the description once it is processed and has passed content moderation (it must show the property).
+
+- **POST** `/api/v1/listings/{id}/videos` — `{ "fileName": "tour.mp4", "sizeBytes": 734003200, "caption": "Villa tour" }` → `201` with an `upload` block
+
+```
+{
+  "video":  { "id": "…", "status": "uploading", … },
+  "upload": {
+    "protocol": "tus",
+    "endpoint": "https://video.bunnycdn.com/tusupload",
+    "headers":  { "AuthorizationSignature": "…", "AuthorizationExpire": "1760999999",
+                  "VideoId": "…", "LibraryId": "…" },
+    "expiresAt": "2026-10-21T12:00:00Z"
+  }
+}
+```
+
+Upload the file to `upload.endpoint` with any tus 1.0 client, sending the four `upload.headers` exactly as received (they authorise this one upload for 24 hours). Example with the Python `tuspy` client:
+
+```
+from tusclient import client
+c = client.TusClient(upload["endpoint"], headers=upload["headers"])
+c.uploader("tour.mp4", chunk_size=32 * 1024 * 1024,
+           metadata={"filetype": "video/mp4", "title": "tour.mp4"}).upload()
+```
+
+- **POST** `/api/v1/listings/{id}/videos/{videoId}/uploaded` — optional — tells us the upload finished, so processing starts at once
+- **GET** `/api/v1/listings/{id}/videos/{videoId}` — poll until `status` is `ready` (then `posterUrl`, `embedUrl`, `playlistUrl` are set), `rejected` (see `rejectionReason`; `too_long` = over 5 minutes) or `failed` (re-export the file and try again)
+- **PUT** `/api/v1/listings/{id}/videos/{videoId}` — `{ "caption": "…" }`
+- **DELETE** `/api/v1/listings/{id}/videos/{videoId}` — removes the video — needed before uploading a replacement (`409 VIDEO_LIMIT_REACHED` otherwise)
+- **GET** `/api/v1/listings/{id}/videos` — the listing's videos plus the current limits
+
+---
+
 ## 6. Read, update, pause, delete
 
 - **GET** `/api/v1/listings?page=1&pageSize=25` — your listings (summary shape)
