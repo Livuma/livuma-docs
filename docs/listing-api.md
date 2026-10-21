@@ -1,6 +1,16 @@
 # Listing API — Integration Manual
 
-Create and manage your Livuma listings programmatically — with the same validation, content moderation and image pipeline as the website.
+Create and manage your Livuma listings programmatically — with the same validation, content moderation, image and video pipeline as the website.
+
+## New in October 2026 — video tours
+
+Listings can now carry a **video tour**, shown on the listing page below the description. Nothing changes for existing integrations — it is optional and purely additive:
+
+- New endpoints under `/api/v1/listings/{id}/videos` — see **5b**.
+- `GET` and `PUT /api/v1/listings/{id}` responses gain a `videos` array (empty when the listing has none).
+- New error codes: `VIDEO_LIMIT_REACHED`, `VIDEO_FILE_TOO_LARGE`, `VIDEO_TYPE_NOT_ALLOWED`, `VIDEO_NOT_FOUND`, `VIDEOS_DISABLED` — see **7**.
+
+---
 
 ## Changed in August 2026 — action needed
 
@@ -139,8 +149,8 @@ c.uploader("tour.mp4", chunk_size=32 * 1024 * 1024,
 ## 6. Read, update, pause, delete
 
 - **GET** `/api/v1/listings?page=1&pageSize=25` — your listings (summary shape)
-- **GET** `/api/v1/listings/{id}` — full detail incl. all images
-- **PUT** `/api/v1/listings/{id}` — update — send *only* the fields you change; omitted or `null` fields keep their values
+- **GET** `/api/v1/listings/{id}` — full detail incl. all images and the `videos` array (same shape as in 5b)
+- **PUT** `/api/v1/listings/{id}` — update — send *only* the fields you change; omitted or `null` fields keep their values. The response is the full detail, `videos` included
 - **POST** `/api/v1/listings/{id}/status` — `{"status": "online" | "paused" | "removed"}`
 - **DELETE** `/api/v1/listings/{id}` — same as status `removed`
 
@@ -203,13 +213,13 @@ Every failure is `application/problem+json` and carries a stable `errorCode` —
 
 | Code | Meaning |
 |---|---|
-| `400` | Validation failed (`errorCode: VALIDATION_ERROR`). The body lists each field with a message, plus machine-readable codes in `errorCodes`: `[{ "field": "nib_number", "code": "nib_invalid" }, …]` — branch on the codes, not the text.  A malformed request (unknown status name, empty `imageIds`, coordinates outside Indonesia) uses `BAD_REQUEST`, `INVALID_STATUS`, `INVALID_IMAGE_ORDER` or `INVALID_COORDINATES`. |
+| `400` | Validation failed (`errorCode: VALIDATION_ERROR`). The body lists each field with a message, plus machine-readable codes in `errorCodes`: `[{ "field": "nib_number", "code": "nib_invalid" }, …]` — branch on the codes, not the text.  A malformed request (unknown status name, empty `imageIds`, coordinates outside Indonesia) uses `BAD_REQUEST`, `INVALID_STATUS`, `INVALID_IMAGE_ORDER` or `INVALID_COORDINATES`.  Video upload requests: `VIDEO_TYPE_NOT_ALLOWED` (not mp4/mov/m4v/webm) · `VIDEO_FILE_TOO_LARGE` (`sizeBytes` 0 or over 4 GB). |
 | `401` | Missing / invalid / revoked key, or API access disabled. `UNAUTHORIZED` — this one is written by the auth layer, but carries `errorCode` like every other failure. |
-| `403` | Not yours to modify. `UNAUTHORIZED` |
-| `404` | Listing doesn't exist or isn't yours. `LISTING_NOT_FOUND` · `IMAGE_NOT_FOUND`  An unmatched route is `NOT_FOUND`. |
+| `403` | Not yours to modify. `UNAUTHORIZED`  Video tours are switched off on the platform right now. `VIDEOS_DISABLED` |
+| `404` | Listing doesn't exist or isn't yours. `LISTING_NOT_FOUND` · `IMAGE_NOT_FOUND`  Video not found on that listing (or not yours). `VIDEO_NOT_FOUND`  An unmatched route is `NOT_FOUND`. |
 | `405` / `415` | Wrong HTTP method for the route, or a body that isn't `application/json`. `METHOD_NOT_ALLOWED` · `UNSUPPORTED_MEDIA_TYPE` |
-| `409` | The listing was removed (permanent) — it can no longer be modified. `LISTING_REMOVED` |
-| `422` | Content moderation rejected your text or images. `MODERATION_REJECTED` · `IMAGE_MODERATION_REJECTED`  For image uploads the body keeps its normal shape — `accepted`, `rejected` (with a per-file reason) and `moderationMessage` — plus `errorCode`. |
+| `409` | The listing was removed (permanent) — it can no longer be modified. `LISTING_REMOVED`  The listing already has its video — delete it before uploading another. `VIDEO_LIMIT_REACHED` |
+| `422` | Content moderation rejected your text or images. `MODERATION_REJECTED` · `IMAGE_MODERATION_REJECTED`  For image uploads the body keeps its normal shape — `accepted`, `rejected` (with a per-file reason) and `moderationMessage` — plus `errorCode`.  Videos are checked *after* the upload, so a refused video is not an error response: its `status` becomes `rejected` with a `rejectionReason`. |
 | `429` | Rate limit — JSON body, wait `Retry-After` seconds. `RATE_LIMITED` |
 | `500` / `503` | Server-side or storage failure — safe to retry. `INTERNAL_ERROR` · `SERVICE_UNAVAILABLE`  Always JSON, never an HTML error page, and the exception text is never returned — quote the `traceId` to support. |
 
@@ -223,7 +233,7 @@ Two kinds of value, and only one carries a time zone:
 
 | Field | Format |
 |---|---|
-| `creationDate` | **An instant.** UTC ISO-8601 with a trailing `Z` — `"2026-08-06T02:20:20.2027373Z"`. Parse as UTC. |
+| `creationDate` video `createdAt`, `readyAt`, upload `expiresAt` | **An instant.** UTC ISO-8601 with a trailing `Z` — `"2026-08-06T02:20:20.2027373Z"`. Parse as UTC. |
 | `availableFromDate` `availableToDate` | **Calendar dates.** Sent with a trailing time component that carries no meaning and *no* zone marker — `"2026-08-06T10:19:43.4504547"`. Read the date part and ignore the rest. |
 
 **Changed 2026-08-22:** `creationDate` previously came back without the `Z`, so a client had to guess the zone; the instant itself is unchanged and no field type changed — only the marker was added. The availability dates were deliberately left exactly as they were: marking them UTC would shift the date a day backwards for clients west of UTC.
@@ -233,6 +243,7 @@ Two kinds of value, and only one carries a time zone:
 ## 9. Good to know
 
 - Changing a title changes the listing's public URL (the slug is derived from the title).
+- A video is optional and never required to go `online`. It appears on the listing page only once its `status` is `ready`; processing usually takes 1–3 minutes after the upload.
 - Whether a listing is *bookable* also depends on your payout setup being complete — the API doesn't change that.
 - Keep the key server-side only. If it ever leaks, regenerate it immediately on **Profile → Security**.
 - The same key also drives the [Booking API](booking-api.md) — read and answer the booking requests on these listings (approve, decline, cancel, chat).
