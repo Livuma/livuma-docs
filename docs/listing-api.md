@@ -17,7 +17,7 @@ Listings can now carry a **video tour**, shown on the listing page below the des
 Indonesia's updated tourism-accommodation rules (KBLI 2025 + the Ministry of Tourism's OTA verification program) added new required fields:
 
 - **Monthly rentals** now require `"residentialLeaseConfirmed": true` — your declaration that the property is let as a residential lease (the tenant lives there as their residence; it is not operated as tourist accommodation). Without it, creates and updates of monthly listings return `400` with code `residential_lease_confirmation_required`.
-- **Short-term (daily) rentals** now also require `nkuNumber` (NKU — Nomor Kegiatan Usaha from OSS, listed under your NIB), alongside the existing NIB + KBLI. Error code: `nku_required`.
+- **Short-term (daily) rentals** accept an optional `nkuNumber` (NKU — Nomor Kegiatan Usaha: the per-activity number in your NIB attachment in OSS, not the NIB itself) alongside the required NIB + KBLI. It is not required yet; once it is, the error code is `nku_required`.
 - `kbliCodes` must be accommodation (division 55) codes — see the field reference for the accepted list. Real-estate codes such as 68111 are rejected (`kbli_not_accepted`).
 - `npwpdNumber` was **removed**. If you still send it, it is ignored.
 
@@ -89,7 +89,7 @@ The `201` response contains the listing `id`, its `publicId` and its public `url
 
 > **Monthly rentals** (a `longTermMonthlyPrice`) require `"residentialLeaseConfirmed": true` — your declaration that the property is let as a residential lease, not operated as tourist accommodation.
 
-> **Short-term (daily) rentals** additionally require: `isShortTermRental: true`, `shortTermPrice`, your 13-digit `nibNumber`, `kbliCodes`, your `nkuNumber` (NKU from OSS), and both `shortTermRentalComplianceConfirmed` and `shortTermRentalComplianceResponsibilityAcknowledged` set to `true`.
+> **Short-term (daily) rentals** additionally require: `isShortTermRental: true`, `shortTermPrice`, your 13-digit `nibNumber`, `kbliCodes`, and both `shortTermRentalComplianceConfirmed` and `shortTermRentalComplianceResponsibilityAcknowledged` set to `true`.
 
 ---
 
@@ -181,7 +181,7 @@ All fields are optional in the JSON (updates change only what you send). “Requ
 | `minimumStayDays` | int | Minimum nights (short-term). |
 | `nibNumber` | string ≤20 | **Short-term:** required, exactly 13 digits (separators allowed). |
 | `kbliCodes` | string ≤200 | **Short-term:** required, comma-separated. Accepted KBLI 2025 codes: `55203` Villa, `55201` Homestay, `55204` Hotel Apartment, `55106` Non-Star Hotel, `55202` Youth Hostel, `55300` Campground, `55209` Other Short-Term Accommodation, `55909` Other Accommodation (boarding house / kost, co-living) (legacy KBLI 2020 equivalents such as `55193`/`55130`/`55900` remain accepted while OSS records convert). Real-estate codes are rejected (`kbli_not_accepted`). |
-| `nkuNumber` | string ≤30 | **Short-term:** required — NKU (Nomor Kegiatan Usaha) from OSS, listed under your NIB. Part of the Ministry of Tourism's NIB + KBLI + NKU verification. |
+| `nkuNumber` | string ≤30 | **Short-term:** optional (recommended) — NKU (Nomor Kegiatan Usaha), the per-activity number in your NIB attachment in OSS; not the same as the NIB. Part of the Ministry of Tourism's planned NIB + KBLI + NKU verification. |
 | `shortTermRentalComplianceConfirmed`, `shortTermRentalComplianceResponsibilityAcknowledged` | bool | **Short-term:** both must be `true`. |
 | `longTermMonthlyPrice`, `longTermYearlyPrice` | decimal | At least one > 0 when long-term is enabled. `0` means the rate is not offered: to remove a monthly or yearly rate on update, send `0` (`null` leaves it unchanged). To stop offering nightly stays, set `isShortTermRental` to `false`. |
 | `residentialLeaseConfirmed` | bool | **Monthly rentals:** must be `true` — declares the property is let as a residential lease, not operated as tourist accommodation. Not needed for yearly-only listings. |
