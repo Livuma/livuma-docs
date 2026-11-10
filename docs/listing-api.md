@@ -167,7 +167,7 @@ All fields are optional in the JSON (updates change only what you send). “Requ
 | Field | Type | Notes |
 |---|---|---|
 | `title` | string ≤50 | **Required.** Public URL slug derives from it. Moderated. |
-| `description` | string ≤2000 | Moderated. |
+| `description` | string ≤5000 | Moderated. |
 | `offerTypeId` | guid | **Required.** Rent or sale (reference-data). |
 | `objectTypeId` | guid | **Required.** Villa, Apartment, … |
 | `countryId` | guid | **Required.** |

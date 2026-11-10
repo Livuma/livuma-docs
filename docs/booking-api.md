@@ -194,7 +194,7 @@ The preview includes `cancellationTerms` from the same policy used by the dialog
 
 - Chat opens as soon as the guest has secured the booking with a card hold or bank transfer; older-style requests open it when you approve. Sending before that returns `409`.
 - Finished bookings (cancelled, completed, expired, declined) are **read-only** — you can still fetch the transcript.
-- One message per second. Faster returns `429`.
+- One message per second, at most 30 per minute and 500 per day (across all your chats). Above that you receive `429` with `Retry-After`.
 - Send plain text — attachment markers inside `text` are rejected.
 
 ---
