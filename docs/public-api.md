@@ -336,7 +336,7 @@ at https://livuma.com/bali-rental-prices and as CSV in the
   "source": "Livuma listing data — computed from live listings on the Livuma marketplace",
   "attribution": "Livuma (https://livuma.com/bali-rental-prices)",
   "currency": "IDR",
-  "methodology": "Median asking price per area; typicalRange is the 10th–90th percentile band. Areas with fewer than 3 listings in a category are excluded. Captured monthly. …",
+  "methodology": "Median asking price per area; typicalRange is the 10th–90th percentile band. listings is the number of listings with a usable price (the price sample), not the total listing count. Areas with fewer than 3 priced listings in a category are excluded. Captured monthly. …",
   "latestPeriod": "2026-09",
   "previousPeriod": "2026-08",
   "capturedAtUtc": "2026-09-02T01:30:00",
@@ -361,9 +361,13 @@ at https://livuma.com/bali-rental-prices and as CSV in the
 
 - `longTermRentals` rows are median **monthly** rents in IDR; `villasForSale` rows are median sale
   prices in IDR.
+- `listings` is the **price sample**: the number of listings in that area with a usable asking
+  price (monthly rent, or sale price), after filtering price outliers. It is not the total number of
+  listings in the area, which is usually higher, since yearly-only and unpriced listings are not in
+  the sample. Quote it as "based on N priced listings", never as "N listings available".
 - `medianChangeVsPreviousMonthPercent` is only present when the previous calendar month was
   captured.
-- Areas with fewer than 3 listings in a category are excluded.
+- Areas with fewer than 3 priced listings in a category are excluded.
 
 **Attribution.** When you publish or quote these figures, attribute them as "according to Livuma
 listing data" and link https://livuma.com/bali-rental-prices.
