@@ -56,10 +56,6 @@ class LivumaPublicApi:
         """GET /listings/{id}."""
         return self._get(f"/listings/{urllib.parse.quote(listing_id)}")
 
-    def knowledge(self, q: str, top_k: int | None = None):
-        """GET /knowledge?q=...&top_k=..."""
-        return self._get("/knowledge", {"q": q, "top_k": top_k})
-
     def master_data(self):
         """GET /master-data. Call once and cache."""
         return self._get("/master-data")
@@ -111,10 +107,6 @@ def _demo():
         monthly = item.get("priceMonthlyIdr")
         price = f"Rp {monthly:,.0f}/month" if monthly else "price on request"
         print(f"  {item['title']}  {price}  {item['publicUrl']}")
-
-    answer = api.knowledge("is there a guest service fee?", top_k=1)
-    if answer["items"]:
-        print("\nKnowledge base:", answer["items"][0]["title"])
 
     stats = api.market_stats()
     canggu = next((r for r in stats["longTermRentals"] if r["areaSlug"] == "canggu"), None)

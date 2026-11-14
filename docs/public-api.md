@@ -1,6 +1,6 @@
 # Public API (no authentication)
 
-A free, read-only JSON API over Livuma's live Bali listing inventory, public knowledge base and
+A free, read-only JSON API over Livuma's live Bali listing inventory and
 monthly market statistics. It is built for AI agents, assistants and anyone who wants to search
 Bali rentals or property programmatically without an account.
 
@@ -24,7 +24,6 @@ The same query layer powers the MCP server, so parameters and results are identi
 | `GET` | `/listings/search` | Search the live inventory (rentals and sales) |
 | `GET` | `/listings/{id}` | Full public details for one listing |
 | `GET` | `/listings/{id}/availability` | Whether a stay can be booked, at which rate and for how much |
-| `GET` | `/knowledge` | Natural-language search over Livuma's FAQs and policies |
 | `GET` | `/master-data` | Valid values for the search parameters |
 | `GET` | `/market-stats` | Monthly Bali rental and sale price statistics per area |
 
@@ -265,39 +264,6 @@ https://livuma.com/api/public/listings/3911/availability?check_in=2026-11-01&che
 - **To book, send the user to `bookingUrl`** — it opens the listing with these dates selected.
   Reserving cannot be done through this API: the card authorisation, its 3-D Secure step and
   identity verification all happen in the guest's own browser.
-
----
-
-## `GET /knowledge`
-
-Natural-language search over Livuma's public knowledge base: FAQs, policies, how booking, payments,
-payouts, platform fees and verification work.
-
-```
-https://livuma.com/api/public/knowledge?q=how+do+host+payouts+work&top_k=3
-```
-
-| Parameter | Type | Notes |
-|---|---|---|
-| `q` | string | **Required.** The question, in natural language. |
-| `top_k` | integer | Number of documents to return. Default 6, max 10. |
-
-```json
-{
-  "items": [
-    {
-      "id": "2045430c-0dce-4653-903b-08aa03443d3c",
-      "title": "How do hosts receive payments from guests on Livuma?",
-      "url": null,
-      "score": 0.5114386,
-      "snippet": "Q: How do hosts receive payments from guests on Livuma?\nA: …"
-    }
-  ]
-}
-```
-
-`score` is a relevance score (higher is better). `url` is present when the snippet comes from a
-page on livuma.com. An empty `q` returns HTTP `400`.
 
 ---
 

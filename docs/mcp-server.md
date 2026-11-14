@@ -10,6 +10,8 @@ web scraping.
 | Transport | Streamable HTTP, stateless (no session to keep alive) |
 | Authentication | None |
 | Server name | `livuma` (title: "Livuma Homes Market — Bali rental & property search") |
+| MCP Registry | `com.livuma/homes` in the [official MCP Registry](https://registry.modelcontextprotocol.io) |
+| Tool annotations | Every tool is `readOnlyHint: true`, `destructiveHint: false`, `idempotentHint: true`, `openWorldHint: false` |
 | Rate limit | 60 requests per minute per IP address, shared with the [public REST API](public-api.md). Over the limit you get HTTP `429`; wait a minute and retry. |
 | Scope | Read-only search, detail and availability quoting. Reserving is always completed by the guest in their own browser — the card authorisation, its 3-D Secure step and identity verification cannot be performed through the API. `check_availability` returns a `bookingUrl` that opens the listing with the quoted dates selected. |
 
@@ -162,21 +164,6 @@ verification all happen in the guest's own browser.
 }
 ```
 
-### `search_knowledge`
-
-Search Livuma's public knowledge base (FAQs, policies, how booking, payments and payouts work,
-platform fees, verification) by natural-language question. Returns ranked snippets with `title`,
-`score`, `snippet` and a source `url` where one exists.
-
-| Parameter | Type | Description |
-|---|---|---|
-| `query` | string | **Required.** Natural-language question, e.g. `"how do host payouts work?"` |
-| `topK` | integer | Number of documents to return. Default 6, max 10. |
-
-```json
-{ "name": "search_knowledge", "arguments": { "query": "is there a guest service fee?", "topK": 3 } }
-```
-
 ### `get_search_options`
 
 No parameters. Lists valid values for `search_listings`: offers, property types, ownership types,
@@ -253,5 +240,5 @@ curl -s https://livuma.com/mcp \
 - When the user has dates, pass `checkInDate` and `checkOutDate` so results carry the exact stay
   total and honour minimum stays.
 - Livuma's own plain-language description for AI assistants is at https://livuma.com/llms.txt.
-- Questions about the platform itself (fees, payouts, verification, cancellations) belong in
-  `search_knowledge`, not in the user's head or yours.
+- Questions about the platform itself (fees, payouts, verification, cancellations) are answered
+  at https://livuma.com/llms.txt, not from memory.

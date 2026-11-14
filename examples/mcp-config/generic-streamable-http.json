@@ -6,7 +6,7 @@
   "tools": [
     "search_listings",
     "get_listing_details",
-    "search_knowledge",
+    "check_availability",
     "get_search_options"
   ]
 }

@@ -16,7 +16,7 @@ PT Livuma Home Market, Badung, Bali.
 
 | Document | What it covers | Auth |
 |---|---|---|
-| [Public API](docs/public-api.md) | Search live listings, listing details, knowledge search, search-parameter values, monthly market statistics. JSON over `https://livuma.com/api/public`. | none |
+| [Public API](docs/public-api.md) | Search live listings, listing details, availability quotes, search-parameter values, monthly market statistics. JSON over `https://livuma.com/api/public`. | none |
 | [MCP server](docs/mcp-server.md) | The same search as native tool calls for Claude, Cursor and any MCP client. `https://livuma.com/mcp`. | none |
 | [Listing API](docs/listing-api.md) | Create, update, pause and remove your own listings, upload photos. `https://livuma.com/api/v1/listings`. | API key |
 | [Booking API](docs/booking-api.md) | Read and answer booking requests on your listings, cancellation preview, guest chat. `https://livuma.com/api/v1/bookings`. | API key |
